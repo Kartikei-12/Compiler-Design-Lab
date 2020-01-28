@@ -102,10 +102,10 @@ operators = ['<<', '>>', '!=', '==', '>=', '::',
 */
 
 
-int64_t count_keywords(string token_list)
+int64_t count_keywords(vector<string> token_list)
 {
     int ans = 0;
-    vector<string> keywords = keywords = {
+    vector<string> keywords = {
         "auto", "const", "double", "float", "int",
         "short", "struct", "unsigned", "break","continue",
         "else","for", "long", "signed","switch", 
@@ -149,7 +149,7 @@ int main() try
         cout<<str<<endl;
     cout<<"**************************"<<endl;
 
-
+    cout<<"Number of keywords: "<<count_keywords(token_list);
 
 
     return 0;
