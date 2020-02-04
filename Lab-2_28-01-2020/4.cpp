@@ -9,6 +9,7 @@
 #include<iostream>
 #include<fstream>
 #include<exception>
+#include<set>
 #include<vector>
 #include<unordered_map>
 #include<algorithm>
@@ -16,6 +17,8 @@
 using namespace std;
 
 #define EPSILON '$'
+#define DEPTH_LIMIT 1000
+#define REMOVE(vec, element) vec.erase(find(vec.begin(), vec.end(), element));
 
 string read_file(string file_name)
 {
@@ -89,11 +92,19 @@ public:
         }
     }
 
-    vector<char> get_first_of_non_terminal(char nonT)
+    vector<char> get_first_of_non_terminal(char nonT, uint64_t depth = 0)
     {
         string expression;
         vector<char> ans, first_ch;
         vector<string> pro_list = grammer[nonT];
+
+        if(depth == DEPTH_LIMIT) // Break in case Cyclic loop
+        {
+            cout<<"Recursive depth reached aborting.";
+            ans.clear();
+            return ans;
+        }
+
         for(int i=0; i<pro_list.size(); ++i)
         {
             expression = pro_list[i];
@@ -104,7 +115,7 @@ public:
             else
             {
                 int j = 1;
-                first_ch = get_first_of_non_terminal(expression[0]);
+                first_ch = get_first_of_non_terminal(expression[0], depth + 1);
                 ans.insert(ans.end(), first_ch.begin(), first_ch.end());
                 while(
                     find(
@@ -115,17 +126,20 @@ public:
                     j<expression.length()
                 )
                 {
+                    REMOVE(ans, EPSILON);
                     if(is_terminal(expression[j]))
                     {
                         ans.push_back(expression[j]);
                         break;
                     }
-                    first_ch = get_first_of_non_terminal(expression[j]);
+                    first_ch = get_first_of_non_terminal(expression[j], depth + 1);
                     ++j;
                     ans.insert(ans.end(), first_ch.begin(), first_ch.end());
                 }
             }
         }
+        set<char> s(ans.begin(), ans.end());
+        ans.assign(s.begin(), s.end());
         return ans;
     }
 
