@@ -16,9 +16,12 @@
 
 using namespace std;
 
-#define EPSILON '$'
+#define STRING_END '$'
+#define EPSILON "!"
 #define DEPTH_LIMIT 1000
 #define REMOVE(vec, element) vec.erase(find(vec.begin(), vec.end(), element));
+#define FIND(vec, element) find(vec.begin(), vec.end(), element) != vec.end()
+
 
 string read_file(string file_name)
 {
@@ -33,19 +36,9 @@ string read_file(string file_name)
     return data;
 }
 
-bool is_epsilon(string ch)
-{
-    if(ch[0] != EPSILON)
-        return false;
-    return true;
-}
+bool is_epsilon(string ch) { return ch == EPSILON; }
 
-bool is_terminal(char ch)
-{
-    if(!islower(ch))
-        return false;
-    return true;
-}
+bool is_terminal(char ch) { return !isupper(ch); }
 
 void vector_print(vector<auto> vec)
 {
@@ -92,6 +85,38 @@ public:
         }
     }
 
+    vector<char> get_first_of_expression(string expression, uint64_t depth = 0)
+    {
+        vector<char> ans, first_ch;
+        // if(expression == "")
+        // {
+        //     ans.push_back(STRING_END);
+        //     return ans;   
+        // }
+        if(is_terminal(expression[0]))
+            ans.push_back(expression[0]);
+        else if(is_epsilon(expression))
+            ans.push_back(EPSILON[0]);
+        else
+        {
+            int j = 1;
+            first_ch = get_first_of_non_terminal(expression[0], depth + 1);
+            ans.insert(ans.end(), first_ch.begin(), first_ch.end());
+            while(FIND(first_ch, EPSILON[0]) && j < expression.length())
+            {
+                REMOVE(ans, EPSILON[0]);
+                if(is_terminal(expression[j]))
+                {
+                    ans.push_back(expression[j]);
+                    break;
+                }
+                first_ch = get_first_of_non_terminal(expression[j], depth + 1);
+                ++j;
+                ans.insert(ans.end(), first_ch.begin(), first_ch.end());
+            }
+        }
+    }
+
     vector<char> get_first_of_non_terminal(char nonT, uint64_t depth = 0)
     {
         string expression;
@@ -107,36 +132,8 @@ public:
 
         for(int i=0; i<pro_list.size(); ++i)
         {
-            expression = pro_list[i];
-            if(is_terminal(expression[0]))
-                ans.push_back(expression[0]);
-            else if(is_epsilon(expression))
-                ans.push_back(EPSILON);
-            else
-            {
-                int j = 1;
-                first_ch = get_first_of_non_terminal(expression[0], depth + 1);
-                ans.insert(ans.end(), first_ch.begin(), first_ch.end());
-                while(
-                    find(
-                        first_ch.begin(),
-                        first_ch.end(),
-                        EPSILON
-                    ) != first_ch.end() &&
-                    j<expression.length()
-                )
-                {
-                    REMOVE(ans, EPSILON);
-                    if(is_terminal(expression[j]))
-                    {
-                        ans.push_back(expression[j]);
-                        break;
-                    }
-                    first_ch = get_first_of_non_terminal(expression[j], depth + 1);
-                    ++j;
-                    ans.insert(ans.end(), first_ch.begin(), first_ch.end());
-                }
-            }
+            vector<char> new_ans = get_first_of_expression(pro_list[i], depth);
+            ans.insert(ans.end(), new_ans.begin(), new_ans.end());
         }
         set<char> s(ans.begin(), ans.end());
         ans.assign(s.begin(), s.end());
@@ -166,8 +163,6 @@ public:
         }
         cout<<"-----------------------"<<endl;
     }
-
-    
 };
 
 int main() try

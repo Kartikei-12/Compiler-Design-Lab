@@ -21,7 +21,7 @@
 using namespace std;
 
 #define EPSILON "$"
-
+#define REMOVE(vec, element) vec.erase(find(vec.begin(), vec.end(), element));
 
 void vector_print(vector<string> vec)
 {
@@ -31,12 +31,7 @@ void vector_print(vector<string> vec)
     cout<<" ]";
 }
 
-bool is_epsilon(string ch)
-{
-    if(ch != EPSILON)
-        return false;
-    return true;
-}
+bool is_epsilon(string ch) { return ch == EPSILON; }
 
 bool is_id(string ident)
 {
@@ -48,28 +43,7 @@ bool is_id(string ident)
     return true;
 }
 
-// bool is_id(const string& s)
-// {
-//     return !s.empty() && find_if(s.begin(), 
-//         s.end(), [](unsigned char c) { return !isdigit(c); }) == s.end();
-// }
-
-bool is_id_part(char ch) { return isdigit(ch); }
-
-vector<string> split(string s, string delimiter)
-{
-    vector<string> list;
-    size_t pos = 0;
-    string token;
-    while ((pos = s.find(delimiter)) != string::npos) {
-        token = s.substr(0, pos);
-        list.push_back(token);
-        s.erase(0, pos + delimiter.length());
-    }
-    list.push_back(s);
-    return list;
-}
-
+bool is_id_part(char ch) { return isalnum(ch) || ch == '_'; }
 
 vector<string> distinguish_input(string in)
 {
@@ -80,7 +54,8 @@ vector<string> distinguish_input(string in)
             temp += ch;
         else
         {
-            ans.push_back(temp);
+            if(temp.length() > 0)
+                ans.push_back(temp);
             temp2 = ch;
             ans.push_back(temp2);
             temp = "";
